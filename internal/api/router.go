@@ -15,6 +15,7 @@ func NewRouter(cfg *config.Config, st *store.Store) http.Handler {
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)
 	r.Use(chimw.Recoverer)
+	r.Use(corsMiddleware)
 
 	r.Get("/health", handleHealth)
 
