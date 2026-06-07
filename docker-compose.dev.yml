@@ -11,6 +11,10 @@ services:
       DEVEX_FAKE_AUTH_ENABLED: "false"
       DEVEX_FAKE_TOKEN: "dev-token"
       DEVEX_FAKE_ENVIRONMENT: "dev"
+      DEVEX_FAKE_STATE_FILE: "/data/state.json"
+      DEVEX_FAKE_STATE_SAVE_INTERVAL_SECONDS: "2"
+    volumes:
+      - ./tmp/fake-platform-api-data:/data
 
   caddy:
     image: caddy:latest

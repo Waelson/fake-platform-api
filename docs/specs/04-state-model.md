@@ -312,3 +312,51 @@ type CommandReport struct {
 ```
 
 A Fake API não valida o conteúdo de `result` para comandos diferentes de `DEPLOY_APPLICATION`. Apenas armazena e aplica as transições de estado baseadas em `command.type`.
+
+---
+
+## Persistência opcional em arquivo
+
+O MVP define a Store como em memória (regra "Store em memória"). Isso permanece
+verdadeiro por padrão: sem `DEVEX_FAKE_STATE_FILE`, nada muda.
+
+Quando `DEVEX_FAKE_STATE_FILE` é definido, a Store ganha uma capacidade
+opt-in de sobreviver a restarts via snapshot em arquivo JSON local — sem
+introduzir banco de dados:
+
+```go
+type Snapshot struct {
+    SchemaVersion int
+
+    Agents     map[string]*Agent
+    AgentIndex map[string]string
+
+    Commands    map[string]*Command
+    Deployments map[string]*Deployment
+
+    CommandReports      []CommandReport
+    DesiredStates       map[string]*DesiredState
+    DesiredStateReports []DesiredStateReport
+
+    Counters Counters
+}
+
+func (s *Store) Snapshot() Snapshot      // copia profunda sob RLock
+func (s *Store) Restore(snap Snapshot)   // popula sob Lock (apenas no boot)
+```
+
+Fluxo:
+
+1. Na inicialização, se o arquivo de estado existir, `persistence.Load` lê o
+   snapshot e `Store.Restore` repõe todo o estado — incluindo `Counters`, para
+   que novos IDs não colidam com IDs já emitidos antes do restart.
+2. Uma goroutine periódica chama `Store.Snapshot` + `persistence.Save`
+   (escrita atômica via `*.tmp` + `rename`).
+3. No shutdown gracioso (SIGTERM/SIGINT) é feito um save final.
+4. `SchemaVersion` é comparado ao carregar; em caso de mismatch, a API loga um
+   aviso e inicia vazia (fail-safe, não fail-fatal).
+5. `POST /testing/reset` remove o arquivo de estado, garantindo que a regra
+   "reset limpa tudo, inclusive counters" também valha após um restart.
+
+Veja `docs/specs/09-docker-compose-dev.md` para as variáveis de ambiente e o
+volume Docker usados para habilitar essa persistência.

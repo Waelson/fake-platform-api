@@ -548,4 +548,41 @@ Motivo:
 
 Com estas decisões (1–25), a documentação está considerada pronta para implementação.
 
+---
+
+## 26. Persistência opcional em arquivo (adendo pós-MVP, sem banco de dados)
+
+Contexto: em uso real (EC2/systemd/Docker), restarts do processo/container faziam
+a Fake API perder agents, deployments e desired states — causando sintomas como
+"agent not found" após restart e perda da versão do `desired_state`.
+
+Decisão: adicionar persistência **opt-in** em snapshot único de arquivo JSON
+local, sem introduzir dependência de banco de dados (preserva a regra "Store em
+memória" do MVP para quem não precisar de persistência):
+
+- **Ativação**: env var `DEVEX_FAKE_STATE_FILE`. Vazio (default) = desabilitada,
+  comportamento 100% em memória, idêntico ao MVP original.
+- **Intervalo de snapshot**: env var opcional `DEVEX_FAKE_STATE_SAVE_INTERVAL_SECONDS`
+  (default `2`).
+- **Quando salvar**: snapshot periódico via goroutine + flush final no shutdown
+  gracioso (SIGTERM/SIGINT — necessário porque `systemctl stop`/`docker stop`
+  enviam SIGTERM). Evita instrumentar individualmente cada mutação.
+- **Quando carregar**: na inicialização (antes do servidor aceitar requests),
+  se o arquivo existir, `persistence.Load` + `Store.Restore` repõem o estado —
+  incluindo `Counters`, para que novos IDs não colidam com IDs já emitidos
+  (ex.: `agent-dev-gateway-001` reaparecendo com dados divergentes).
+- **Escrita atômica**: grava em `path+".tmp"` e usa `os.Rename`, evitando
+  corrupção em caso de crash durante a escrita.
+- **Versionamento de schema**: `Snapshot.SchemaVersion` é comparado ao carregar;
+  em mismatch, a API loga um aviso e inicia vazia (fail-safe, não fail-fatal) —
+  em vez de falhar o boot por causa de um snapshot de versão antiga da imagem.
+- **Reset (regra 14)**: `POST /testing/reset` também remove o arquivo de estado
+  configurado, para que um restart subsequente não restaure dados anteriores ao
+  reset.
+
+Não muda nenhum contrato de API observável pelos agents — é puramente uma
+capacidade operacional da Fake API. Veja `docs/specs/04-state-model.md` (seção
+"Persistência opcional em arquivo") e `docs/specs/09-docker-compose-dev.md`
+(variáveis de ambiente e volume Docker) para detalhes de implementação.
+
 Novas ambiguidades devem ser resolvidas preferencialmente em `99-decisions-and-clarifications.md`.

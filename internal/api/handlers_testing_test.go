@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/waelson/fake-platform-api/internal/config"
+	"github.com/waelson/fake-platform-api/internal/persistence"
 	"github.com/waelson/fake-platform-api/internal/store"
 )
 
@@ -429,6 +432,36 @@ func TestTestingReset_ClearsEverything(t *testing.T) {
 	}
 	if len(st.ListDeployments()) != 0 {
 		t.Error("deployments must be cleared after reset")
+	}
+}
+
+func TestTestingReset_RemovesStateFile(t *testing.T) {
+	dir := t.TempDir()
+	statePath := filepath.Join(dir, "state.json")
+
+	cfg := testingCfg()
+	cfg.StateFile = statePath
+	st := store.New()
+	router := NewRouter(cfg, st)
+
+	st.RegisterAgent(store.RegisterInput{
+		Mode: "runtime", Environment: "dev", Role: "api", InstanceID: "inst-rt-1",
+	})
+
+	if err := persistence.Save(statePath, st.Snapshot()); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	if _, err := os.Stat(statePath); err != nil {
+		t.Fatalf("expected state file to exist before reset: %v", err)
+	}
+
+	w := doRequest(router, http.MethodPost, "/testing/reset", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: got %d", w.Code)
+	}
+
+	if _, err := os.Stat(statePath); !os.IsNotExist(err) {
+		t.Errorf("expected state file to be removed after reset, stat err = %v", err)
 	}
 }
 

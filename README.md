@@ -61,11 +61,29 @@ DEVEX_FAKE_AUTH_ENABLED=false
 DEVEX_FAKE_TOKEN=dev-token
 DEVEX_FAKE_ENVIRONMENT=dev
 DEVEX_FAKE_UPSTREAM_HOST=host.docker.internal
+DEVEX_FAKE_STATE_FILE=
+DEVEX_FAKE_STATE_SAVE_INTERVAL_SECONDS=2
 ```
 
 ### DEVEX_FAKE_ENVIRONMENT
 
 Define o environment padrão usado pelos endpoints `/testing/*` quando o request não informar `environment`.
+
+### DEVEX_FAKE_STATE_FILE / DEVEX_FAKE_STATE_SAVE_INTERVAL_SECONDS
+
+Persistência opcional em arquivo, para sobreviver a restarts do processo/container
+sem precisar de banco de dados:
+
+- `DEVEX_FAKE_STATE_FILE`: caminho de um snapshot JSON (ex.: `/data/state.json`).
+  Vazio (default) = a API roda 100% em memória, igual ao MVP original.
+- `DEVEX_FAKE_STATE_SAVE_INTERVAL_SECONDS`: intervalo do snapshot periódico em
+  segundos (default `2`).
+
+Quando habilitada, o estado (agents, commands, deployments, desired states,
+reports e counters) é restaurado no boot, salvo periodicamente e ao receber
+SIGTERM/SIGINT, e removido por `POST /testing/reset`. Veja
+`docs/specs/04-state-model.md` e `docs/specs/09-docker-compose-dev.md` para
+detalhes.
 
 ### DEVEX_FAKE_UPSTREAM_HOST
 

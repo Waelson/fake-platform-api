@@ -45,7 +45,7 @@ func NewRouter(cfg *config.Config, st *store.Store) http.Handler {
 		r.Get("/desired-state", handleTestingDesiredState(st))
 		r.Get("/desired-state/reports", handleTestingDesiredStateReports(st))
 		r.Get("/debug", handleTestingDebug(st))
-		r.Post("/reset", handleTestingReset(st))
+		r.Post("/reset", handleTestingReset(cfg, st))
 	})
 
 	return r

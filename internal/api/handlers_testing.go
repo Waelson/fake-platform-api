@@ -2,7 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/waelson/fake-platform-api/internal/config"
 	"github.com/waelson/fake-platform-api/internal/response"
@@ -344,9 +346,18 @@ func handleTestingDebug(st *store.Store) http.HandlerFunc {
 
 // ---- POST /testing/reset ----
 
-func handleTestingReset(st *store.Store) http.HandlerFunc {
+func handleTestingReset(cfg *config.Config, st *store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		st.Reset()
+
+		// Remove any persisted state so a subsequent restart doesn't restore
+		// data from before the reset (CLAUDE.md regra 14: reset limpa tudo).
+		if cfg.StateFile != "" {
+			if err := os.Remove(cfg.StateFile); err != nil && !os.IsNotExist(err) {
+				log.Printf("state file %s: failed to remove on reset: %v", cfg.StateFile, err)
+			}
+		}
+
 		response.JSON(w, http.StatusOK, map[string]string{"status": "reset"})
 	}
 }
