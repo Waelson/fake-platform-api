@@ -11,7 +11,7 @@ import (
 )
 
 func newTestRouter(cfg *config.Config) http.Handler {
-	return NewRouter(cfg, store.New("host.docker.internal"))
+	return NewRouter(cfg, store.New())
 }
 
 func defaultCfg() *config.Config {

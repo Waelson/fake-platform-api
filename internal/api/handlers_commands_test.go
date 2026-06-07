@@ -14,7 +14,7 @@ import (
 func setupWithDeploy(t *testing.T) (http.Handler, *store.Store, string, string, string) {
 	t.Helper()
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 
 	a := st.RegisterAgent(store.RegisterInput{
@@ -40,7 +40,7 @@ func setupWithDeploy(t *testing.T) (http.Handler, *store.Store, string, string, 
 
 func TestHandleListPendingCommands_EmptyArray(t *testing.T) {
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 	a := st.RegisterAgent(store.RegisterInput{
 		Mode: "runtime", Environment: "dev", Role: "api", InstanceID: "i1",

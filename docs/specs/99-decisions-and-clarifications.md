@@ -192,16 +192,23 @@ Após reset, IDs voltam a `001`.
 
 ---
 
-## 11. runtime_private_ip vs DEVEX_FAKE_UPSTREAM_HOST
+## 11. Construção do upstream
+
+`DEVEX_FAKE_UPSTREAM_HOST` foi removido. O Gateway Agent pode rodar em uma
+instância diferente do Runtime Agent, então qualquer hostname resolvível
+apenas localmente (ex.: `host.docker.internal`) é inválido como upstream —
+o Gateway Agent rejeita hostnames por política de segurança (`INVALID_UPSTREAM`).
 
 Regra final:
 
 ```text
-if DEVEX_FAKE_UPSTREAM_HOST != "":
-    upstream = DEVEX_FAKE_UPSTREAM_HOST + ":" + host_port
-else:
-    upstream = runtime_private_ip + ":" + host_port
+upstream = runtime_private_ip + ":" + host_port
 ```
+
+`runtime_private_ip` e `host_port` são os valores recebidos no `result` do
+report de sucesso do comando `DEPLOY_APPLICATION` (`POST
+/api/agents/{agent_id}/commands/{command_id}/report`) e persistidos em
+`Deployment.RuntimePrivateIP` / `Deployment.HostPort`.
 
 ---
 

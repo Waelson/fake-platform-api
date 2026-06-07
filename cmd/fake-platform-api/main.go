@@ -12,7 +12,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-	st := store.New(cfg.UpstreamHost)
+	st := store.New()
 	router := api.NewRouter(cfg, st)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)

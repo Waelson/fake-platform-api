@@ -26,18 +26,16 @@ type Store struct {
 	DesiredStates       map[string]*DesiredState
 	DesiredStateReports []DesiredStateReport
 
-	Counters     Counters
-	upstreamHost string
+	Counters Counters
 }
 
-func New(upstreamHost string) *Store {
+func New() *Store {
 	return &Store{
 		Agents:        make(map[string]*Agent),
 		AgentIndex:    make(map[string]string),
 		Commands:      make(map[string]*Command),
 		Deployments:   make(map[string]*Deployment),
 		DesiredStates: make(map[string]*DesiredState),
-		upstreamHost:  upstreamHost,
 		Counters: Counters{
 			AgentByEnvironmentRole:           make(map[string]int),
 			DesiredStateVersionByEnvironment: make(map[string]int),
@@ -45,12 +43,11 @@ func New(upstreamHost string) *Store {
 	}
 }
 
+// buildUpstream always points to the runtime instance's private IP — the
+// Gateway Agent may run on a different host than the Runtime Agent, so any
+// locally-resolvable hostname (e.g. host.docker.internal) would be invalid.
 func (s *Store) buildUpstream(privateIP string, hostPort int) string {
-	host := s.upstreamHost
-	if host == "" {
-		host = privateIP
-	}
-	return fmt.Sprintf("%s:%d", host, hostPort)
+	return fmt.Sprintf("%s:%d", privateIP, hostPort)
 }
 
 // Debug returns a snapshot of the full store for diagnostics.

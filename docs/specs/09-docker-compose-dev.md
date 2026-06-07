@@ -16,7 +16,6 @@ services:
       DEVEX_FAKE_AUTH_ENABLED: "false"
       DEVEX_FAKE_TOKEN: "dev-token"
       DEVEX_FAKE_ENVIRONMENT: "dev"
-      DEVEX_FAKE_UPSTREAM_HOST: "host.docker.internal"
 
   caddy:
     image: caddy:latest

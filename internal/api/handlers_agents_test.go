@@ -108,7 +108,7 @@ func registerTestAgent(t *testing.T, st *store.Store) string {
 
 func TestHandleHeartbeat_Success(t *testing.T) {
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 	agentID := registerTestAgent(t, st)
 
@@ -138,7 +138,7 @@ func TestHandleHeartbeat_NotFound(t *testing.T) {
 
 func TestHandleHeartbeat_UpdatesAgentFields(t *testing.T) {
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 	agentID := registerTestAgent(t, st)
 

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func newStore() *Store { return New("host.docker.internal") }
+func newStore() *Store { return New() }
 
 // ---- RegisterAgent ----
 

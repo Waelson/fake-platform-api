@@ -13,7 +13,7 @@ import (
 func setupWithRoute(t *testing.T) (http.Handler, *store.Store, string, string, string) {
 	t.Helper()
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 
 	runtime := st.RegisterAgent(store.RegisterInput{
@@ -49,7 +49,7 @@ func setupWithRoute(t *testing.T) (http.Handler, *store.Store, string, string, s
 
 func TestHandleGetDesiredState_Empty(t *testing.T) {
 	cfg := defaultCfg()
-	st := store.New("host.docker.internal")
+	st := store.New()
 	router := NewRouter(cfg, st)
 	a := st.RegisterAgent(store.RegisterInput{
 		Mode: "gateway", Environment: "dev", Role: "gateway", InstanceID: "gw-1",
@@ -98,7 +98,7 @@ func TestHandleGetDesiredState_WithRoutes(t *testing.T) {
 	if route["host"] != "app.dev.local" {
 		t.Errorf("route host: got %v", route["host"])
 	}
-	if route["upstream"] != "host.docker.internal:4100" {
+	if route["upstream"] != "10.0.0.1:4100" {
 		t.Errorf("upstream: got %v", route["upstream"])
 	}
 }

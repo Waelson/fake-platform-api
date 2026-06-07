@@ -159,7 +159,7 @@ Update v2 deve atualizar rota existente.
   "environment": "dev",
   "host": "billing-api.dev.useclarus.local",
   "path": "/",
-  "upstream": "host.docker.internal:4100",
+  "upstream": "10.0.0.42:4100",
   "deployment_id": "dep-001",
   "health_check_path": "/health"
 }

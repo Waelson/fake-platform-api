@@ -22,9 +22,6 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.Environment != "dev" {
 		t.Errorf("Environment: got %q, want %q", cfg.Environment, "dev")
 	}
-	if cfg.UpstreamHost != "localhost" {
-		t.Errorf("UpstreamHost: got %q, want %q", cfg.UpstreamHost, "localhost")
-	}
 }
 
 func TestLoadFromEnv(t *testing.T) {
@@ -33,7 +30,6 @@ func TestLoadFromEnv(t *testing.T) {
 	os.Setenv("DEVEX_FAKE_AUTH_ENABLED", "true")
 	os.Setenv("DEVEX_FAKE_TOKEN", "secret-token")
 	os.Setenv("DEVEX_FAKE_ENVIRONMENT", "stage")
-	os.Setenv("DEVEX_FAKE_UPSTREAM_HOST", "host.docker.internal")
 	t.Cleanup(clearEnv)
 
 	cfg := Load()
@@ -50,9 +46,6 @@ func TestLoadFromEnv(t *testing.T) {
 	if cfg.Environment != "stage" {
 		t.Errorf("Environment: got %q, want %q", cfg.Environment, "stage")
 	}
-	if cfg.UpstreamHost != "host.docker.internal" {
-		t.Errorf("UpstreamHost: got %q, want %q", cfg.UpstreamHost, "host.docker.internal")
-	}
 }
 
 func clearEnv() {
@@ -60,5 +53,4 @@ func clearEnv() {
 	os.Unsetenv("DEVEX_FAKE_AUTH_ENABLED")
 	os.Unsetenv("DEVEX_FAKE_TOKEN")
 	os.Unsetenv("DEVEX_FAKE_ENVIRONMENT")
-	os.Unsetenv("DEVEX_FAKE_UPSTREAM_HOST")
 }

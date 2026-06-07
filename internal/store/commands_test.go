@@ -200,7 +200,7 @@ func TestReportCommand_DeploySucceeded_RequiresRoute(t *testing.T) {
 	if len(ds.Routes) != 1 {
 		t.Errorf("routes: got %d, want 1", len(ds.Routes))
 	}
-	if ds.Routes[0].Upstream != "host.docker.internal:4100" {
+	if ds.Routes[0].Upstream != "10.0.0.1:4100" {
 		t.Errorf("upstream: got %q", ds.Routes[0].Upstream)
 	}
 }
@@ -387,7 +387,7 @@ func TestReportCommand_UpdateUpsertRouteOnV2(t *testing.T) {
 	if len(ds.Routes) != 1 {
 		t.Errorf("routes: got %d, want 1 (no duplicate)", len(ds.Routes))
 	}
-	if ds.Routes[0].Upstream != "host.docker.internal:4101" {
+	if ds.Routes[0].Upstream != "10.0.0.1:4101" {
 		t.Errorf("upstream not updated: %q", ds.Routes[0].Upstream)
 	}
 	if ds.Routes[0].DeploymentID != dep2.ID {

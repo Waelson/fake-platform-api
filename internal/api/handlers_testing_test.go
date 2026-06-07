@@ -13,11 +13,10 @@ import (
 // testingCfg returns a config with environment "dev" (default for testing endpoints).
 func testingCfg() *config.Config {
 	return &config.Config{
-		Port:         "8080",
-		AuthEnabled:  false,
-		Token:        "dev-token",
-		Environment:  "dev",
-		UpstreamHost: "host.docker.internal",
+		Port:        "8080",
+		AuthEnabled: false,
+		Token:       "dev-token",
+		Environment: "dev",
 	}
 }
 
@@ -25,7 +24,7 @@ func testingCfg() *config.Config {
 func setupTestingWithAgent(t *testing.T) (http.Handler, *store.Store, string) {
 	t.Helper()
 	cfg := testingCfg()
-	st := store.New(cfg.UpstreamHost)
+	st := store.New()
 	router := NewRouter(cfg, st)
 	a := st.RegisterAgent(store.RegisterInput{
 		Mode: "runtime", Environment: "dev", Role: "api",
@@ -141,7 +140,7 @@ func TestTestingDeploy_MandatoryLabels(t *testing.T) {
 
 func TestTestingDeploy_AgentNotFound(t *testing.T) {
 	cfg := testingCfg()
-	st := store.New(cfg.UpstreamHost)
+	st := store.New()
 	router := NewRouter(cfg, st)
 	// No agents registered
 
@@ -260,7 +259,7 @@ func TestTestingCleanupDraining_Success(t *testing.T) {
 
 func TestTestingListAgents_Empty(t *testing.T) {
 	cfg := testingCfg()
-	st := store.New(cfg.UpstreamHost)
+	st := store.New()
 	router := NewRouter(cfg, st)
 
 	w := doRequest(router, http.MethodGet, "/testing/agents", "")
