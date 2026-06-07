@@ -110,6 +110,7 @@ type DesiredStateReport struct {
 	DesiredStateVersion        int        `json:"desired_state_version"`
 	CurrentDesiredStateVersion int        `json:"current_desired_state_version"`
 	Stale                      bool       `json:"stale"`
+	Invalid                    bool       `json:"invalid"`
 	Environment                string     `json:"environment"`
 	Type                       string     `json:"type"`
 	Status                     string     `json:"status"`

@@ -155,7 +155,9 @@ func (s *Store) ApplyDesiredStateReport(in DesiredStateReportInput) (DesiredStat
 
 	switch {
 	case in.DesiredStateVersion > currentVersion:
-		return DesiredStateReport{}, fmt.Errorf("%w: reported %d but current is %d",
+		report.Invalid = true
+		s.DesiredStateReports = append(s.DesiredStateReports, report)
+		return report, fmt.Errorf("%w: reported %d but current is %d",
 			ErrFutureVersion, in.DesiredStateVersion, currentVersion)
 
 	case in.DesiredStateVersion < currentVersion:
